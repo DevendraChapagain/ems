@@ -1,6 +1,9 @@
 import User from "../models/user.model.js";
+import crypto from "crypto";
+import jwt from "jsonwebtoken";
+import config from "../config/config.js";
 
-export async function Register (req, res) {
+export async function Register(req, res) {
   try {
     const { name, email, password } = req.body;
 
@@ -15,11 +18,27 @@ export async function Register (req, res) {
       });
     }
 
+    const hashedPassword = crypto
+      .createHash("Sha256")
+      .update(password)
+      .digest("hex");
+
     //Create new user
-    const newUser = await User.create({ name, email, password });
+    const newUser = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+    });
+
+    // Creating Token for Users
+    const token = jwt.sign({ id: newUser._id }, config.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+
     res.status(201).json({
       message: "User registered successfully",
       user: newUser,
+      token: token,
     });
   } catch (error) {
     console.error(error);
@@ -27,6 +46,25 @@ export async function Register (req, res) {
       message: "Error registering user",
     });
   }
+}
+
+export async function Login(req, res) {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({
+      message: "Token Not Found",
+    });
+  }
+
+  const decoded = jwt.verify(token, config.JWT_SECRET);
+  const user = await User.findById(decoded.id);
+  res.status(200).json({
+    message: "User Data Fetched Successfully",
+    user: {
+      username: user.name,
+      email: user.email,
+    },
+  });
 }
 
 export default Register;
