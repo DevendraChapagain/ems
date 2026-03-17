@@ -30,15 +30,27 @@ export async function Register(req, res) {
       password: hashedPassword,
     });
 
-    // Creating Token for Users
-    const token = jwt.sign({ id: newUser._id }, config.JWT_SECRET, {
-      expiresIn: "1d",
+    // Creating Access Token
+    const accessToken = jwt.sign({ id: newUser._id }, config.JWT_SECRET, {
+      expiresIn: "15m",
+    });
+
+    // Creating Refresh Token
+    const refreshToken = jwt.sign({ id: newUser._id }, config.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     res.status(201).json({
       message: "User registered successfully",
       user: newUser,
-      token: token,
+      accessToken: accessToken,
     });
   } catch (error) {
     console.error(error);
