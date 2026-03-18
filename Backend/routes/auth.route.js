@@ -3,11 +3,10 @@ import * as authController from "../controller/auth.controller.js"
 
 const authRouter = Router();
 
-//Post /api/auth/register
-authRouter.post("/register",authController.Register);
+// POST /api/auth/register
+authRouter.post("/register", authController.Register);
 
-//Get /api/auth/login
-authRouter.get("/login",authController.Login);
-
+// POST /api/auth/login
+authRouter.post("/login", authController.Login);
 
 export default authRouter;
