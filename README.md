@@ -1,102 +1,103 @@
 # Employee Management System (EMS)
 
-A simple and efficient Employee Management System (EMS) built to manage employee records, track activities, and organize internal workflows.
-
-> This project currently uses **Local Storage** for data persistence (no backend).
-
----
-
-## Features
-
-* Basic Login System (Frontend-based)
-* Add, Edit, and Delete Employees
-* Dashboard UI for overview
-* Data stored in browser using Local Storage
-* Fast and lightweight (no server required)
-
----
+A fullstack Employee Management System built with Next.js and Node.js, featuring JWT authentication and role-based access control.
 
 ## Tech Stack
 
-* **Frontend:** React.js
-* **Styling:** Tailwind CSS
-* **Storage:** Browser Local Storage
+**Frontend**
+- Next.js 16
+- Tailwind CSS
+- Shadcn/ui
+- Lucide React
 
----
+**Backend**
+- Node.js
+- Express.js
+- MongoDB (Mongoose)
+- JWT Authentication
+
+## Features
+
+- User Registration & Login
+- JWT Authentication (Access Token + Refresh Token)
+- HTTP-only cookie for refresh token
+- Password hashing with SHA-256
+- Role-based access (Admin / Employee)
+- Admin Dashboard
+- Employee Dashboard
+- Protected Routes
 
 ## Project Structure
 
 ```
-ems/
-│── src/
-│   │── components/
-│   │── pages/
-│   │── assets/
-│   │── App.jsx
-│   │── main.jsx
-│── public/
-│── package.json
+EMS/
+  ├── frontend/         # Next.js app
+  │   ├── app/
+  │   │   ├── auth/
+  │   │   │   ├── login/
+  │   │   │   └── register/
+  │   │   ├── admin/
+  │   │   │   └── dashboard/
+  │   │   ├── employee/
+  │   │   │   └── dashboard/
+  │   │   └── components/
+  │   └── components/
+  │       └── ui/       # Shadcn components
+  │
+  └── backend/          # Express app
+      ├── config/
+      ├── controller/
+      ├── middleware/
+      ├── models/
+      ├── routes/
+      └── utils/
 ```
 
----
+## Getting Started
 
-## Installation & Setup
+### Prerequisites
+- Node.js
+- MongoDB
 
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/your-username/ems.git
-cd ems
-```
-
-### 2. Install dependencies
+### Backend Setup
 
 ```bash
+cd backend
 npm install
 ```
 
-### 3. Run the project
+Create a `.env` file in the backend folder:
+```env
+PORT=3001
+MONGO_URL=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+```
 
+Start the backend:
 ```bash
 npm run dev
 ```
 
----
+### Frontend Setup
 
-## How Data Works
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-* All employee data is stored in **Local Storage**
-* Data persists even after page refresh
-* Data will be lost if:
+The app will run on `http://localhost:3000`  
+The backend will run on `http://localhost:3001`
 
-  * Browser cache is cleared
-  * Switched to another device/browser
+## Authentication Flow
 
----
-
-## 📸 Screenshots
-
-(Add your UI screenshots here)
-
----
-
-## Limitations
-
-* ❌ No real authentication (frontend only)
-* ❌ No database (data stored locally)
-* ❌ Not suitable for production use
-
----
-
-## Future Improvements
-
-* 🔗 Add Backend (Node.js / Django)
-* 🗄️ Database Integration (MongoDB / PostgreSQL)
-* 🔐 Secure Authentication (JWT)
-* 💬 Real-time Chat System
-* 📁 Advanced File Sharing System
+1. User registers or logs in with email and password
+2. Backend hashes password and verifies credentials
+3. Backend generates Access Token (15m) and Refresh Token (7d)
+4. Refresh Token is stored in HTTP-only cookie
+5. Access Token is used for protected API requests
+6. User is redirected based on their role
 
 ## Author
 
-Devendra Chapagain
-🔗 https://www.linkedin.com/in/devendra-chapagain-765366281/
+Built with while learning fullstack development
