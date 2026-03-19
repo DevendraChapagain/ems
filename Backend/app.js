@@ -8,7 +8,10 @@ const app = express();
 // CORS must come BEFORE routes
 app.use(
   cors({
-    origin: "http://localhost:3000", 
+    origin: "http://localhost:3000",
+    origin: "ems.chapagaindevendra.com.np",
+    origin: "https://ems-git-master-projects-projects-87e8e01a.vercel.app/",
+
     credentials: true,
   })
 );
