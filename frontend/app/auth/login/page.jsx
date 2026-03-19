@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
   const router = useRouter();
@@ -14,6 +16,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -21,7 +24,7 @@ export default function Login() {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:3000/api/auth/login", {
+      const res = await fetch("http://localhost:3001/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -32,7 +35,7 @@ export default function Login() {
 
       if (res.ok) {
         console.log("Logged in user:", data.user);
-        router.push("/admin/dashboard");
+        router.push("/employee/dashboard");
       } else {
         setError(data.message || "Login failed");
       }
@@ -46,7 +49,7 @@ export default function Login() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#111522]">
-      <Card className="w-full max-w-md rounded-2xl bg-[#1A1F33]">
+      <Card className="w-300 max-w-md rounded-2xl bg-[#1A1F33]">
         <CardHeader className=" text-white rounded-t-2xl">
           <CardTitle className="text-3xl text-center font-medium">
             EMS Login
@@ -66,7 +69,7 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="border-[#707070] py-5 px-4  focus:ring-[#4C62B3] focus:border-[#4C62B3]"
+                className="border-[#707070] py-5 px-4 focus:ring-[#4C62B3] focus:border-[#4C62B3] placeholder:text-gray-400 text-white"
               />
             </div>
 
@@ -74,14 +77,23 @@ export default function Login() {
               <Label className="text-[#707070] text-[0.9rem] mb-2">
                 Password
               </Label>
-              <Input
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="border-[#707070] py-5 px-4  focus:ring-[#4C62B3] focus:border-[#4C62B3]"
-              />
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="border-[#707070] py-5 px-4 focus:ring-[#4C62B3] focus:border-[#4C62B3] placeholder:text-gray-400 text-white"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#707070] hover:text-white transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             {error && <p className="text-red-500 text-sm">{error}</p>}
@@ -97,9 +109,9 @@ export default function Login() {
 
           <p className="text-center text-sm text-gray-500 mt-4">
             Don’t have an account?{" "}
-            <a href="/register" className="text-[#4C62B3] hover:underline">
+            <Link href="/auth/register" className="text-[#4C62B3] hover:underline">
               Register
-            </a>
+            </Link>
           </p>
         </CardContent>
       </Card>

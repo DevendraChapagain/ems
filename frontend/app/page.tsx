@@ -5,13 +5,49 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Header */}
-      <header className="bg-blue-600 text-white shadow-md">
-        <div className="container mx-auto flex justify-between items-center py-4 px-6">
+      <header className="bg-blue-600 text-white">
+        <div className="w-full container mx-auto flex items-center py-4 px-6">
+          {/* Left: Logo */}
           <h1 className="text-2xl font-bold">EMS</h1>
-          <nav className="space-x-4">
-            <Link href="/login" className="hover:underline">Login</Link>
-            <Link href="/register" className="hover:underline">Register</Link>
+
+          {/* Center: Navigation */}
+          <nav className="flex-1">
+            <ul className="flex justify-center gap-10">
+              <li>
+                <Link href="/" className="hover:underline">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link href="/about" className="hover:underline">
+                  About
+                </Link>
+              </li>
+              <li>
+                <Link href="/plan" className="hover:underline">
+                  Plan and Pricing
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="hover:underline">
+                  Contact Us
+                </Link>
+              </li>
+            </ul>
           </nav>
+
+          {/* Right: Auth Links */}
+          <div className="flex gap-6">
+            <Link href="/auth/login" className="border border-white text-white px-4 py-2 rounded-md hover:bg-blue-600">
+              Login
+            </Link>
+            <Link
+              href="/auth/register"
+              className="bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-gray-200"
+            >
+              Register
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -21,10 +57,11 @@ export default function Home() {
           Welcome to Employee Management System
         </h2>
         <p className="text-gray-600 max-w-xl mb-6">
-          Manage your employees, track attendance, and monitor performance efficiently with EMS.
+          Manage your employees, track attendance, and monitor performance
+          efficiently with EMS.
         </p>
         <Link
-          href="/login"
+          href="/auth/login"
           className="bg-blue-600 text-white px-6 py-3 rounded-md font-semibold hover:bg-blue-700 transition"
         >
           Get Started
