@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Employee Management System",
+  title: "Kinetic Management System",
   description: "Developed by Devendra Chapagain, an Employee Management System built with Next.js and Tailwind CSS.",
 };
 
