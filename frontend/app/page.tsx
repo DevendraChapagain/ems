@@ -69,7 +69,7 @@ export default function Home() {
 
           <Link href="/" className="mr-12 flex-shrink-0">
             <Image
-              src="/logo/kinetic Logo.png"
+              src="/logo/kinetic-logo.png"
               width={140}
               height={140}
               alt="Kinetic Management System"
