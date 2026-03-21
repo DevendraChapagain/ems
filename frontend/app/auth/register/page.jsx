@@ -2,12 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, UserPlus } from "lucide-react";
 
 export default function Register() {
   const router = useRouter();
@@ -34,7 +31,6 @@ export default function Register() {
       const data = await res.json();
 
       if (res.ok) {
-        console.log("User Registered:", data);
         router.push("/auth/login");
       } else {
         setError(data.message || "Registration failed");
@@ -48,84 +44,123 @@ export default function Register() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#111522]">
-      <Card className="w-300 max-w-md rounded-2xl bg-[#1A1F33]">
-        <CardHeader>
-          <CardTitle className="text-white text-3xl text-center font-Bold">
-            Create Account
-          </CardTitle>
-          <p className="text-[16px] text-[#F5F1EA]/80 text-center mt-3">
-            Create to your personal account.{" "}
-          </p>
-        </CardHeader>
+    <div className="min-h-screen bg-[#f8f9fc] flex items-center justify-center px-4">
+      <div className=" flex flex-col w-full max-w-md gap-6">
 
-        <CardContent>
-          <form onSubmit={submitHandler} className="flex flex-col gap-5">
-            <div>
-              <Label className="text-[#707070] text-[0.9rem] mb-2">Name</Label>
-              <Input
+        {/* Logo */}
+        <div className="flex justify-center">
+          <Link href="/">
+            <Image
+              src="/logo/kinetic-logo.png"
+              width={140}
+              height={46}
+              alt="Kinetic"
+              className="h-10 w-auto"
+            />
+          </Link>
+        </div>
+
+        {/* Card */}
+        <div className="bg-white border border-[#e8eaf0] rounded-2xl p-8">
+          <div className="mb-6">
+            <h1 className="text-2xl font-extrabold text-[#1a1d2e] tracking-tight">
+              Create account
+            </h1>
+            <p className="text-sm text-[#9ca3af] mt-1">
+              Fill in your details to get started
+            </p>
+          </div>
+
+          <form onSubmit={submitHandler} className="flex flex-col gap-4 mb-4">
+            <div className="flex flex-col gap-2">
+              <label className="block text-xs font-semibold text-[#4a4f6a] mb-1.5">
+                Full Name
+              </label>
+              <input
                 type="text"
                 placeholder="Enter your name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="border-[#707070] py-5 px-4 focus:ring-[#4C62B3] focus:border-[#4C62B3] placeholder:text-gray-400 text-white"
+                className="w-full px-4 py-2.5 bg-[#f8f9fc] border border-[#e8eaf0] rounded-lg text-sm text-[#1a1d2e] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#4C62B3] transition-colors duration-150"
               />
             </div>
 
-            <div>
-              <Label className="text-[#707070] text-[0.9rem] mb-2">Email</Label>
-              <Input
+            <div className="flex flex-col gap-2">
+              <label className="block text-xs font-semibold text-[#4a4f6a] mb-1.5">
+                Email Address
+              </label>
+              <input
                 type="email"
-                placeholder="Enter email"
+                placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="border-[#707070] py-5 px-4 focus:ring-[#4C62B3] focus:border-[#4C62B3] placeholder:text-gray-400 text-white"
+                className="w-full px-4 py-2.5 bg-[#f8f9fc] border border-[#e8eaf0] rounded-lg text-sm text-[#1a1d2e] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#4C62B3] transition-colors duration-150"
               />
             </div>
 
-            <div>
-              <Label className="text-[#707070] text-[0.9rem] mb-2">
+            <div className="flex flex-col gap-2">
+              <label className="block text-xs font-semibold text-[#4a4f6a] mb-1.5">
                 Password
-              </Label>
+              </label>
               <div className="relative">
-                <Input
+                <input
                   type={showPassword ? "text" : "password"}
-                  placeholder="Enter password"
+                  placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="border-[#707070] py-5 px-4 focus:ring-[#4C62B3] focus:border-[#4C62B3] placeholder:text-gray-400 text-white"
+                  className="w-full px-4 py-2.5 pr-10 bg-[#f8f9fc] border border-[#e8eaf0] rounded-lg text-sm text-[#1a1d2e] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#4C62B3] transition-colors duration-150"
                 />
                 <button
-                type="button"
+                  type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#707070] hover:text-white transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9ca3af] hover:text-[#4C62B3] transition-colors duration-150"
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
 
-            {error && <p className="text-red-500">{error}</p>}
+            {error && (
+              <p className="text-xs text-red-500 bg-red-50 border border-red-100 px-3 py-2 rounded-lg">
+                {error}
+              </p>
+            )}
 
-            <Button
+            <button
               type="submit"
               disabled={loading}
-              className="bg-[#4C62B3] hover:bg-[#405296] text-white font-semibold py-5 px-4 rounded-lg transition-all duration-200 mt-2"
+              className="inline-flex items-center justify-center gap-2 bg-[#4C62B3] text-white text-sm font-semibold px-6 py-3 rounded-xl hover:bg-[#3a4e9a] transition-colors duration-200 mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {loading ? "Registering..." : "Register"}
-            </Button>
+              {loading ? (
+                "Creating account..."
+              ) : (
+                <>
+                  <UserPlus size={16} strokeWidth={2} />
+                  Create Account
+                </>
+              )}
+            </button>
           </form>
-          <p className="text-center text-sm text-gray-500 mt-4">
-            Already have Account?{" "}
-            <Link href="/auth/login" className="text-[#4C62B3] hover:underline">
-              Login
+
+          <p className="text-center text-sm text-[#9ca3af] mt-5">
+            Already have an account?{" "}
+            <Link
+              href="/auth/login"
+              className="text-[#4C62B3] font-medium hover:underline"
+            >
+              Sign In
             </Link>
           </p>
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* Footer */}
+        <p className="text-center text-xs text-[#9ca3af] mt-6">
+          © {new Date().getFullYear()} Kinetic. All rights reserved.
+        </p>
+      </div>
     </div>
   );
 }
