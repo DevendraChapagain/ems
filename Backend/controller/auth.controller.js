@@ -41,7 +41,7 @@ function setRefreshCookie(res, token) {
 
 export async function Register(req, res) {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
 
     // Input validation
     if (!name || !email || !password) {
@@ -63,6 +63,7 @@ export async function Register(req, res) {
       name,
       email,
       password: hashedPassword,
+      role,
     });
 
     const { accessToken, refreshToken } = generateTokens(newUser._id);
@@ -74,6 +75,7 @@ export async function Register(req, res) {
         id: newUser._id,
         name: newUser.name,
         email: newUser.email,
+        role : newUser.role,
       },
       accessToken,
     });
@@ -120,6 +122,7 @@ export async function Login(req, res) {
         id: user._id,
         name: user.name,
         email: user.email,
+        role :user.role,
       },
       accessToken,
     });

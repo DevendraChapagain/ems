@@ -4,7 +4,7 @@ const userSchema = new mongoose.Schema({
     name: {
         type: String,
         required: [true,"User name is required"],
-        unique: [true,"User name must be unique"],
+        unique: false,
     },
     email: { 
         type : String,
@@ -15,8 +15,13 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true,"Password is required"],
     },
+    role:{
+        type: String,
+        required: [true,"Role is required"],
+        enum :['admin','employee','hr','manager'],
+        default:'employee',
+    }  
 });
-
 
 const User = mongoose.model("User", userSchema);
 export default User;
