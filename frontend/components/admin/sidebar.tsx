@@ -26,23 +26,27 @@ export default function SideBar() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const handleLogout = () => {
-    sessionStorage.removeItem("accessToken");
+  const handleLogout = async () => {
+  try {
+    await fetch("/api/auth/logout", { method: "POST" });
+  } catch (err) {
+    console.error(err);
+  } finally {
+    sessionStorage.clear();
     router.push("/auth/login");
-  };
+  }
+};
 
   return (
     <aside className="w-64 bg-white border-r border-[#e8eaf0] flex flex-col fixed h-full z-40">
       <div className="px-6 py-5 border-b border-[#e8eaf0]">
-        
-          <Image
-            src="/logo/kinetic-logo.png"
-            width={120}
-            height={40}
-            alt="Kinetic"
-            className="h-9 w-auto"
-          />
-      
+        <Image
+          src="/logo/kinetic-logo.png"
+          width={120}
+          height={40}
+          alt="Kinetic"
+          className="h-9 w-auto"
+        />
       </div>
 
       <nav className="flex-1 px-4 py-6 space-y-1">

@@ -21,15 +21,11 @@ export default function Login() {
     setError("");
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ email, password }),
-        },
-      );
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
       const data = await res.json();
 
@@ -159,7 +155,8 @@ export default function Login() {
 
         {/* Footer */}
         <p className="text-center text-xs text-[#9ca3af] mt-12">
-          © {new Date().getFullYear()} Kinetic Employee Management System. All rights reserved.
+          © {new Date().getFullYear()} Kinetic Employee Management System. All
+          rights reserved.
         </p>
       </div>
     </div>
