@@ -34,7 +34,7 @@ export default function SideBar() {
   return (
     <aside className="w-64 bg-white border-r border-[#e8eaf0] flex flex-col fixed h-full z-40">
       <div className="px-6 py-5 border-b border-[#e8eaf0]">
-        <Link href="/">
+        
           <Image
             src="/logo/kinetic-logo.png"
             width={120}
@@ -42,7 +42,7 @@ export default function SideBar() {
             alt="Kinetic"
             className="h-9 w-auto"
           />
-        </Link>
+      
       </div>
 
       <nav className="flex-1 px-4 py-6 space-y-1">

@@ -19,33 +19,45 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   const submitHandler = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+  e.preventDefault();
+  setLoading(true);
+  setError("");
 
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email, password }),
-      });
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ email, password }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (res.ok) {
-        console.log("Logged in user:", data.user);
-        router.push("/employee/dashboard");
+    if (res.ok) {                                          // ← inside try
+      const { user, accessToken } = data;
+
+      sessionStorage.setItem("accessToken", accessToken);
+      sessionStorage.setItem("user", JSON.stringify(user));
+
+      if (user.role === "admin") {
+        router.push("/admin/dashboard");
+      } else if (user.role === "manager") {
+        router.push("/manager/dashboard");
+      } else if (user.role === "hr") {
+        router.push("/hr/dashboard");
       } else {
-        setError(data.message || "Login failed");
+        router.push("/employee/dashboard");
       }
-    } catch (err) {
-      console.error(err);
-      setError("Server error");
-    } finally {
-      setLoading(false);
+    } else {
+      setError(data.message || "Login failed");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    setError("Server error");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#111522]">
