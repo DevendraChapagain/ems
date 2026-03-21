@@ -12,15 +12,15 @@ function hashPassword(password) {
     .digest("hex");
 }
 
-function generateTokens(userId) {
+function generateTokens(userId,role) {
   const accessToken = jwt.sign(
-    { id: userId },
+    { id: userId,role },
     config.JWT_ACCESS_SECRET,
     { expiresIn: "15m" }
   );
 
   const refreshToken = jwt.sign(
-    { id: userId },
+    { id: userId,role },
     config.JWT_REFRESH_SECRET,
     { expiresIn: "7d" }
   );
@@ -66,7 +66,7 @@ export async function Register(req, res) {
       role,
     });
 
-    const { accessToken, refreshToken } = generateTokens(newUser._id);
+    const { accessToken, refreshToken } = generateTokens(newUser._id, newUser.role);
     setRefreshCookie(res, refreshToken);
 
     return res.status(201).json({
@@ -113,7 +113,7 @@ export async function Login(req, res) {
       });
     }
 
-    const { accessToken, refreshToken } = generateTokens(user._id);
+    const { accessToken, refreshToken } = generateTokens(user._id,user.role);
     setRefreshCookie(res, refreshToken);
 
     return res.status(200).json({
