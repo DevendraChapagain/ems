@@ -7,18 +7,20 @@ const taskSchema = new mongoose.Schema(
       required: [true, "Title is required"],
     },
 
-    descriptiom: {
+    description: {
       type: String,
       required: [true, "Description is required"],
     },
 
     assignedBy: {
       type: mongoose.Schema.Types.ObjectId,
+      ref: "User", 
       required: [true, "Task must by admin"],
     },
 
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
+      ref: "User", 
       required: [true, "Task must be assigned to a user"],
     },
 
@@ -28,7 +30,7 @@ const taskSchema = new mongoose.Schema(
       default: "low",
     },
 
-    taskStatus: {
+    status: {
       type: String,
       enum: ["pending", "onprogress", "completed"],
       default: "pending",
