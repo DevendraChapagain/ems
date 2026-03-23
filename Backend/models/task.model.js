@@ -1,48 +1,48 @@
 import mongoose from "mongoose";
 
 const taskSchema = new mongoose.Schema(
-  {
-    title: {
-      type: String,
-      required: [true, "Title is required"],
-    },
+    {
+        title: {
+            type: String,
+            required: [true, "Title is required"],
+        },
 
-    descriptiom: {
-      type: String,
-      required: [true, "Description is required"],
-    },
+        description: {
+            type: String,
+            required: [true, "Description is required"],
+        },
 
-    assignedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: [true, "Task must by admin"],
-    },
+        assignedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: [true, "Task must by admin"],
+        },
 
-    assignedTo: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: [true, "Task must be assigned to a user"],
-    },
+        assignedTo: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: [true, "Task must be assigned to a user"],
+        },
 
-    priority: {
-      type: String,
-      enum: ["low", "medium", "high"],
-      default: "low",
-    },
+        priority: {
+            type: String,
+            enum: ["low", "medium", "high"],
+            default: "low",
+        },
 
-    taskStatus: {
-      type: String,
-      enum: ["pending", "onprogress", "completed"],
-      default: "pending",
-    },
+        status: {
+            type: String,
+            enum: ["pending", "in_progress", "completed"],
+            default: "pending",
+        },
 
-    dueDate: {
-      type: Date,
-      required: [true, "Due Date is required"],
+        dueDate: {
+            type: Date,
+            required: [true, "Due Date is required"],
+        },
     },
-  },
-  {
-    timestamps: true,
-  },
+    {
+        timestamps: true,
+    },
 );
 
-const Task = mongoose.model("Task",taskSchema);
+const Task = mongoose.model("Task", taskSchema);
 export default Task;
