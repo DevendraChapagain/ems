@@ -1,6 +1,7 @@
 import express from 'express';
 import authRouter from './routes/auth.route.js';
 import taskRouter from './routes/task.route.js';
+import userRouter from './routes/user.route.js';
 import cookieParser from 'cookie-parser';
 import cors from "cors";
 
@@ -31,6 +32,7 @@ app.use(cookieParser());
 // Routes
 app.use("/api/auth", authRouter);
 app.use ("/api/task", taskRouter);
+app.use ("api/user",userRouter);
 
 // Test route
 app.get('/', (req, res) => {
