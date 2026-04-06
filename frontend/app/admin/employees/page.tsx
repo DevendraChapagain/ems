@@ -1,29 +1,115 @@
 "use client";
 
-import { useState } from "react";
-import { Users, Search, Plus, MoreHorizontal, Mail, Phone } from "lucide-react";
-import Sidebar from "@/components/admin/sidebar";
+import { useState, useEffect } from "react";
+import { Users, Search, Plus, MoreHorizontal, Mail, Phone, Trash2 } from "lucide-react";
+import CreateUserModal from "@/components/modals/AddEmployee";
 
-const employees = [
-  { id: 1, name: "John Doe", role: "Software Engineer", department: "Engineering", email: "john@kinetic.com", phone: "+977-9801234567", status: "Active", avatar: "JD" },
-  { id: 2, name: "Sarah Miller", role: "Product Designer", department: "Design", email: "sarah@kinetic.com", phone: "+977-9807654321", status: "Active", avatar: "SM" },
-  { id: 3, name: "Raj Sharma", role: "HR Manager", department: "HR", email: "raj@kinetic.com", phone: "+977-9811234567", status: "Active", avatar: "RS" },
-  { id: 4, name: "Emily Chen", role: "Marketing Lead", department: "Marketing", email: "emily@kinetic.com", phone: "+977-9812345678", status: "On Leave", avatar: "EC" },
-  { id: 5, name: "David Park", role: "Backend Developer", department: "Engineering", email: "david@kinetic.com", phone: "+977-9823456789", status: "Active", avatar: "DP" },
-  { id: 6, name: "Priya Thapa", role: "Accountant", department: "Finance", email: "priya@kinetic.com", phone: "+977-9834567890", status: "Active", avatar: "PT" },
-];
+interface Employee {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+  department: string;
+  phone: string;
+  status?: string;
+}
 
-const departments = ["All", "Engineering", "Design", "HR", "Marketing", "Finance"];
+const departments = ["All", "Engineering", "Design", "HR", "Marketing", "Finance","Development"];
+
+const roleColors: Record<string, string> = {
+  admin: "bg-purple-50 text-purple-700",
+  manager: "bg-blue-50 text-blue-700",
+  employee: "bg-emerald-50 text-emerald-700",
+};
 
 export default function EmployeesPage() {
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("All");
+  const [showModal, setShowModal] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "employee",
+    phone: "",
+    department: "",
+  });
+
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
+
+  const fetchEmployees = async () => {
+    try {
+      const accessToken = sessionStorage.getItem("accessToken");
+      const res = await fetch("/api/users", {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const data = await res.json();
+      if (res.ok) setEmployees(data.users);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const accessToken = sessionStorage.getItem("accessToken");
+      const res = await fetch("/api/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setEmployees((prev) => [data.user, ...prev]);
+        setShowModal(false);
+        setForm({
+          name: "",
+          email: "",
+          password: "",
+          role: "employee",
+          phone: "",
+          department: "",
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDeleteEmployee = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this employee?")) return;
+    try {
+      const accessToken = sessionStorage.getItem("accessToken");
+      const res = await fetch(`/api/users/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (res.ok) setEmployees((prev) => prev.filter((e) => e._id !== id));
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const filtered = employees.filter((e) => {
     const matchesSearch =
-      e.name.toLowerCase().includes(search.toLowerCase()) ||
-      e.email.toLowerCase().includes(search.toLowerCase());
-    const matchesDept = department === "All" || e.department === department;
+      e.name?.toLowerCase().includes(search.toLowerCase()) ||
+      e.email?.toLowerCase().includes(search.toLowerCase());
+    const matchesDept =
+      department === "All" || e.department === department;
     return matchesSearch && matchesDept;
   });
 
@@ -32,20 +118,51 @@ export default function EmployeesPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-extrabold text-[#1a1d2e] tracking-tight">Employees</h1>
-          <p className="text-sm text-[#9ca3af] mt-0.5">{employees.length} total employees</p>
+          <h1 className="text-2xl font-extrabold text-[#1a1d2e] tracking-tight">
+            Employees
+          </h1>
+          <p className="text-sm text-[#9ca3af] mt-0.5">
+            {employees.length} total employees
+          </p>
         </div>
-        <button className="inline-flex items-center gap-2 bg-[#4C62B3] text-white text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-[#3a4e9a] transition-colors duration-150">
+        <button
+          onClick={() => setShowModal(true)}
+          className="inline-flex items-center gap-2 bg-[#4C62B3] text-white text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-[#3a4e9a] transition-colors duration-150"
+        >
           <Plus size={16} strokeWidth={2} />
           Add Employee
         </button>
       </div>
 
+      {/* Summary */}
+      <div className="grid grid-cols-3 gap-4 mb-8">
+        {[
+          { label: "Total Employees", value: employees.length, color: "#4C62B3" },
+          { label: "Managers", value: employees.filter((e) => e.role === "manager").length, color: "#3b82f6" },
+          { label: "Employees", value: employees.filter((e) => e.role === "employee").length, color: "#10b981" },
+        ].map(({ label, value, color }) => (
+          <div
+            key={label}
+            className="bg-white border border-[#e8eaf0] rounded-2xl p-5 flex items-center gap-4"
+          >
+            <div className="w-10 h-10 rounded-xl bg-[#f8f9fc] flex items-center justify-center">
+              <Users size={18} color={color} />
+            </div>
+            <div>
+              <p className="text-2xl font-extrabold text-[#1a1d2e]">{value}</p>
+              <p className="text-xs text-[#9ca3af] font-medium">{label}</p>
+            </div>
+          </div>
+        ))}
+      </div>
 
       {/* Filters */}
       <div className="flex items-center gap-4 mb-6">
         <div className="relative flex-1 max-w-sm">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af]" />
+          <Search
+            size={15}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af]"
+          />
           <input
             type="text"
             placeholder="Search employees..."
@@ -73,69 +190,103 @@ export default function EmployeesPage() {
 
       {/* Table */}
       <div className="bg-white border border-[#e8eaf0] rounded-2xl overflow-hidden">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-[#e8eaf0] bg-[#f8f9fc]">
-              <th className="text-left px-6 py-3.5 text-xs font-semibold text-[#9ca3af] uppercase tracking-wider">Employee</th>
-              <th className="text-left px-6 py-3.5 text-xs font-semibold text-[#9ca3af] uppercase tracking-wider">Department</th>
-              <th className="text-left px-6 py-3.5 text-xs font-semibold text-[#9ca3af] uppercase tracking-wider">Contact</th>
-              <th className="text-left px-6 py-3.5 text-xs font-semibold text-[#9ca3af] uppercase tracking-wider">Status</th>
-              <th className="px-6 py-3.5" />
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[#e8eaf0]">
-            {filtered.map((emp) => (
-              <tr key={emp.id} className="hover:bg-[#f8f9fc] transition-colors duration-100">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-[#4C62B3] flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
-                      {emp.avatar}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-[#1a1d2e]">{emp.name}</p>
-                      <p className="text-xs text-[#9ca3af]">{emp.role}</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <span className="text-sm text-[#4a4f6a]">{emp.department}</span>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-xs text-[#4a4f6a] flex items-center gap-1.5">
-                      <Mail size={11} color="#9ca3af" /> {emp.email}
-                    </span>
-                    <span className="text-xs text-[#4a4f6a] flex items-center gap-1.5">
-                      <Phone size={11} color="#9ca3af" /> {emp.phone}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${
-                    emp.status === "Active"
-                      ? "bg-emerald-50 text-emerald-700"
-                      : "bg-amber-50 text-amber-700"
-                  }`}>
-                    {emp.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <button className="p-1.5 rounded-lg hover:bg-[#f0f2ff] transition-colors duration-150">
-                    <MoreHorizontal size={16} color="#9ca3af" />
-                  </button>
-                </td>
+        {loading ? (
+          <div className="py-16 text-center">
+            <p className="text-sm text-[#9ca3af]">Loading employees...</p>
+          </div>
+        ) : (
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-[#e8eaf0] bg-[#f8f9fc]">
+                <th className="text-left px-6 py-3.5 text-xs font-semibold text-[#9ca3af] uppercase tracking-wider">
+                  Employee
+                </th>
+                <th className="text-left px-6 py-3.5 text-xs font-semibold text-[#9ca3af] uppercase tracking-wider">
+                  Role
+                </th>
+                <th className="text-left px-6 py-3.5 text-xs font-semibold text-[#9ca3af] uppercase tracking-wider">
+                  Department
+                </th>
+                <th className="text-left px-6 py-3.5 text-xs font-semibold text-[#9ca3af] uppercase tracking-wider">
+                  Contact
+                </th>
+                <th className="px-6 py-3.5" />
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-[#e8eaf0]">
+              {filtered.map((emp) => (
+                <tr
+                  key={emp._id}
+                  className="hover:bg-[#f8f9fc] transition-colors duration-100"
+                >
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-[#4C62B3] flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+                        {emp.name?.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-[#1a1d2e]">
+                          {emp.name}
+                        </p>
+                        <p className="text-xs text-[#9ca3af]">{emp.email}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${roleColors[emp.role]}`}
+                    >
+                      {emp.role}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="text-sm text-[#4a4f6a]">
+                      {emp.department || "—"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-xs text-[#4a4f6a] flex items-center gap-1.5">
+                        <Mail size={11} color="#9ca3af" />
+                        {emp.email}
+                      </span>
+                      <span className="text-xs text-[#4a4f6a] flex items-center gap-1.5">
+                        <Phone size={11} color="#9ca3af" />
+                        {emp.phone || "—"}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => handleDeleteEmployee(emp._id)}
+                      className="p-1.5 rounded-lg hover:bg-red-50 text-[#9ca3af] hover:text-red-500 transition-colors duration-150"
+                    >
+                      <Trash2 size={15} strokeWidth={1.75} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
 
-        {filtered.length === 0 && (
+        {!loading && filtered.length === 0 && (
           <div className="py-16 text-center">
             <Users size={32} color="#e8eaf0" className="mx-auto mb-3" />
             <p className="text-sm text-[#9ca3af]">No employees found</p>
           </div>
         )}
       </div>
+
+      {/* Modal */}
+      <CreateUserModal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        onSubmit={handleCreateUser}
+        form={form}
+        setForm={setForm}
+        submitting={submitting}
+      />
     </div>
   );
 }
