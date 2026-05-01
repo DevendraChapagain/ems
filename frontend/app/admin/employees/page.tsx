@@ -42,27 +42,42 @@ export default function EmployeesPage() {
     fetchEmployees();
   }, []);
 
-  const fetchEmployees = async () => {
+ const fetchEmployees = async () => {
+  try {
+    const accessToken = sessionStorage.getItem("accessToken");
+
+    const res = await fetch("/api/user", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    let data = null;
     try {
-      const accessToken = sessionStorage.getItem("accessToken");
-      const res = await fetch("/api/users", {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      const data = await res.json();
-      if (res.ok) setEmployees(data.users);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
+      data = await res.json();
+    } catch {
+      console.log("No JSON response");
     }
-  };
+
+    console.log("API RESPONSE:", data); 
+
+    if (res.ok) {
+
+      setEmployees(data?.users || data || []);
+    } else {
+      console.error("API ERROR:", data);
+    }
+  } catch (err) {
+    console.error("FETCH ERROR:", err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     try {
       const accessToken = sessionStorage.getItem("accessToken");
-      const res = await fetch("/api/users", {
+      const res = await fetch("/api/user", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -94,7 +109,7 @@ export default function EmployeesPage() {
     if (!confirm("Are you sure you want to delete this employee?")) return;
     try {
       const accessToken = sessionStorage.getItem("accessToken");
-      const res = await fetch(`/api/users/${id}`, {
+      const res = await fetch(`/api/user/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${accessToken}` },
       });

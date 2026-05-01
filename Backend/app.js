@@ -32,7 +32,7 @@ app.use(cookieParser());
 // Routes
 app.use("/api/auth", authRouter);
 app.use ("/api/task", taskRouter);
-app.use ("api/user",userRouter);
+app.use ("/api/user",userRouter);
 
 // Test route
 app.get('/', (req, res) => {
