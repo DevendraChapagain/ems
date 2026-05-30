@@ -1,4 +1,5 @@
 "use client";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 import { useState, useEffect } from "react";
 import {
@@ -69,8 +70,9 @@ export default function TasksPage() {
   const fetchTasks = async () => {
     try {
       const accessToken = sessionStorage.getItem("accessToken");
-      const res = await fetch("/api/task", {
+      const res = await fetch("/api/tasks", {
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
       });
@@ -134,7 +136,7 @@ export default function TasksPage() {
     if (!confirm("Are you sure you want to delete this task?")) return;
     try {
       const accessToken = sessionStorage.getItem("accessToken");
-      const res = await fetch(`/api/task/${id}`, {
+      const res = await fetch(`/api/tasks/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${accessToken}`,

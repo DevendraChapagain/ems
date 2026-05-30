@@ -63,6 +63,7 @@ export async function getTasks(req, res) {
   } catch (error) {
     console.error("Get tasks error:", error);
     return res.status(500).json({ message: "Error fetching tasks" });
+    console.log(req.user);
   }
 }
 

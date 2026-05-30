@@ -1,7 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Users, Search, Plus, MoreHorizontal, Mail, Phone, Trash2 } from "lucide-react";
+import {
+  Users,
+  Search,
+  Plus,
+  MoreHorizontal,
+  Mail,
+  Phone,
+  Trash2,
+} from "lucide-react";
 import CreateUserModal from "@/components/modals/AddEmployee";
 
 interface Employee {
@@ -14,7 +22,15 @@ interface Employee {
   status?: string;
 }
 
-const departments = ["All", "Engineering", "Design", "HR", "Marketing", "Finance","Development"];
+const departments = [
+  "All",
+  "Engineering",
+  "Design",
+  "HR",
+  "Marketing",
+  "Finance",
+  "Development",
+];
 
 const roleColors: Record<string, string> = {
   admin: "bg-purple-50 text-purple-700",
@@ -42,68 +58,93 @@ export default function EmployeesPage() {
     fetchEmployees();
   }, []);
 
- const fetchEmployees = async () => {
+  const fetchEmployees = async () => {
+    try {
+      let accessToken = sessionStorage.getItem("accessToken");
+
+      let res = await fetch("/api/user", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      // Handle expired token
+      if (res.status === 401) {
+        const refreshRes = await fetch("/api/auth/refresh-token", {
+          method: "POST",
+          credentials: "include",
+        });
+
+        if (!refreshRes.ok) {
+          console.log("Session expired");
+          return;
+        }
+
+        const refreshData = await refreshRes.json();
+
+        sessionStorage.setItem("accessToken", refreshData.accessToken);
+
+        // retry request
+        res = await fetch("/api/user", {
+          headers: {
+            Authorization: `Bearer ${refreshData.accessToken}`,
+          },
+        });
+      }
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setEmployees(data?.users || []);
+      } else {
+      }
+    } catch (err) {
+      console.error("FETCH ERROR:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateUser = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setSubmitting(true);
+
   try {
     const accessToken = sessionStorage.getItem("accessToken");
 
     const res = await fetch("/api/user", {
-      headers: { Authorization: `Bearer ${accessToken}` },
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(form),
     });
 
-    let data = null;
-    try {
-      data = await res.json();
-    } catch {
-      console.log("No JSON response");
-    }
-
-    console.log("API RESPONSE:", data); 
+    const data = await res.json();
 
     if (res.ok) {
+      setEmployees((prev) => [data.user, ...prev]);
+      setShowModal(false);
 
-      setEmployees(data?.users || data || []);
+      setForm({
+        name: "",
+        email: "",
+        password: "",
+        role: "employee",
+        phone: "",
+        department: "",
+      });
     } else {
-      console.error("API ERROR:", data);
+      console.log(data.message);
     }
+
   } catch (err) {
-    console.error("FETCH ERROR:", err);
+    console.error(err);
   } finally {
-    setLoading(false);
+    setSubmitting(false);
   }
 };
-
-  const handleCreateUser = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    try {
-      const accessToken = sessionStorage.getItem("accessToken");
-      const res = await fetch("/api/user", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setEmployees((prev) => [data.user, ...prev]);
-        setShowModal(false);
-        setForm({
-          name: "",
-          email: "",
-          password: "",
-          role: "employee",
-          phone: "",
-          department: "",
-        });
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   const handleDeleteEmployee = async (id: string) => {
     if (!confirm("Are you sure you want to delete this employee?")) return;
@@ -123,8 +164,7 @@ export default function EmployeesPage() {
     const matchesSearch =
       e.name?.toLowerCase().includes(search.toLowerCase()) ||
       e.email?.toLowerCase().includes(search.toLowerCase());
-    const matchesDept =
-      department === "All" || e.department === department;
+    const matchesDept = department === "All" || e.department === department;
     return matchesSearch && matchesDept;
   });
 
@@ -152,9 +192,21 @@ export default function EmployeesPage() {
       {/* Summary */}
       <div className="grid grid-cols-3 gap-4 mb-8">
         {[
-          { label: "Total Employees", value: employees.length, color: "#4C62B3" },
-          { label: "Managers", value: employees.filter((e) => e.role === "manager").length, color: "#3b82f6" },
-          { label: "Employees", value: employees.filter((e) => e.role === "employee").length, color: "#10b981" },
+          {
+            label: "Total Employees",
+            value: employees.length,
+            color: "#4C62B3",
+          },
+          {
+            label: "Managers",
+            value: employees.filter((e) => e.role === "manager").length,
+            color: "#3b82f6",
+          },
+          {
+            label: "Employees",
+            value: employees.filter((e) => e.role === "employee").length,
+            color: "#10b981",
+          },
         ].map(({ label, value, color }) => (
           <div
             key={label}
@@ -191,11 +243,10 @@ export default function EmployeesPage() {
             <button
               key={dept}
               onClick={() => setDepartment(dept)}
-              className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors duration-150 ${
-                department === dept
+              className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors duration-150 ${department === dept
                   ? "bg-[#4C62B3] text-white"
                   : "bg-white border border-[#e8eaf0] text-[#4a4f6a] hover:border-[#4C62B3]/30 hover:text-[#4C62B3]"
-              }`}
+                }`}
             >
               {dept}
             </button>

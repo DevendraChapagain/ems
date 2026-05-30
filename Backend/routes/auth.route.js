@@ -1,6 +1,7 @@
 import { Router } from "express";
 import * as authController from "../controller/auth.controller.js"
 import { verifyToken,authorizeRoles } from "../middleware/auth.middleware.js";
+import {createUser} from "../controller/auth.controller.js";
 
 const authRouter = Router();
 
@@ -16,6 +17,8 @@ authRouter.post("/refresh-token", authController.refreshToken);
 // POST /api/auth/logout
 authRouter.post("/logout", authController.Logout);
 
+// POST /api/auth/create-user
+authRouter.post("/create-user", authController.createUser);
 
 // Admin Route
 authRouter.get("/admin",verifyToken,authorizeRoles("admin"),

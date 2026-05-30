@@ -31,7 +31,7 @@ function generateTokens(userId,role) {
 function setRefreshCookie(res, token) {
   res.cookie("refreshToken", token, {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
@@ -149,7 +149,7 @@ export async function refreshToken(req, res) {
     const decoded = jwt.verify(token, config.JWT_REFRESH_SECRET);
 
     const accessToken = jwt.sign(
-      { id: decoded.id },
+      { id: decoded.id, role: decoded.role },
       config.JWT_ACCESS_SECRET,
       { expiresIn: "15m" }
     );
@@ -162,6 +162,44 @@ export async function refreshToken(req, res) {
     return res.status(403).json({
       message: "Invalid or expired refresh token",
     });
+  }
+}
+
+// ─── Create User/Employee ───────────────────────────────────────────────────────────────────
+
+export async function createUser(req, res) {
+  try {
+    const { name, email, password, role, department } = req.body;
+
+    if (!name || !email || !password || !role) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const isAlreadyExist = await User.findOne({ email });
+    if (isAlreadyExist) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
+
+   const hashedPassword = hashPassword(password);
+
+    const newUser = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role,
+      department,
+    });
+
+    const { password: _, ...userWithoutPassword } = newUser.toObject();
+
+    return res.status(201).json({
+      message: "User created successfully",
+      user: userWithoutPassword,
+    });
+
+  } catch (error) {
+    console.error("Create user error:", error);
+    return res.status(500).json({ message: "Error creating user" });
   }
 }
 
